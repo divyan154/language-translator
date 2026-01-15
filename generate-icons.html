@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate App Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .icon-preview {
+            margin: 20px;
+            display: inline-block;
+        }
+        canvas {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin: 10px;
+        }
+        button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .instructions {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Voice Translator Icon Generator</h1>
+
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click the buttons below to generate and download the app icons</li>
+            <li>Save them in the same folder as your other app files</li>
+            <li>The icons will be automatically used by your PWA</li>
+        </ol>
+    </div>
+
+    <div class="icon-preview">
+        <h3>192x192 Icon</h3>
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <br>
+        <button onclick="downloadIcon('canvas192', 'icon-192.png')">Download 192x192</button>
+    </div>
+
+    <div class="icon-preview">
+        <h3>512x512 Icon</h3>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <br>
+        <button onclick="downloadIcon('canvas512', 'icon-512.png')">Download 512x512</button>
+    </div>
+
+    <script>
+        function drawIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw microphone icon
+            ctx.strokeStyle = 'white';
+            ctx.fillStyle = 'white';
+            ctx.lineWidth = size * 0.04;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const micHeight = size * 0.25;
+            const micWidth = size * 0.15;
+
+            // Microphone body (rounded rectangle)
+            ctx.beginPath();
+            ctx.roundRect(
+                centerX - micWidth / 2,
+                centerY - micHeight - size * 0.1,
+                micWidth,
+                micHeight,
+                micWidth / 2
+            );
+            ctx.fill();
+
+            // Microphone arc
+            ctx.beginPath();
+            ctx.arc(
+                centerX,
+                centerY - size * 0.1,
+                micWidth * 1.2,
+                0.3 * Math.PI,
+                0.7 * Math.PI
+            );
+            ctx.stroke();
+
+            // Microphone stand
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - size * 0.1);
+            ctx.lineTo(centerX, centerY + size * 0.15);
+            ctx.stroke();
+
+            // Microphone base
+            ctx.beginPath();
+            ctx.moveTo(centerX - micWidth, centerY + size * 0.15);
+            ctx.lineTo(centerX + micWidth, centerY + size * 0.15);
+            ctx.stroke();
+
+            // Translation arrows
+            const arrowY = centerY + size * 0.25;
+            const arrowSize = size * 0.08;
+
+            // Left arrow
+            ctx.beginPath();
+            ctx.moveTo(centerX - size * 0.15, arrowY);
+            ctx.lineTo(centerX - size * 0.25, arrowY);
+            ctx.moveTo(centerX - size * 0.25, arrowY);
+            ctx.lineTo(centerX - size * 0.22, arrowY - arrowSize * 0.4);
+            ctx.moveTo(centerX - size * 0.25, arrowY);
+            ctx.lineTo(centerX - size * 0.22, arrowY + arrowSize * 0.4);
+            ctx.stroke();
+
+            // Right arrow
+            ctx.beginPath();
+            ctx.moveTo(centerX + size * 0.15, arrowY);
+            ctx.lineTo(centerX + size * 0.25, arrowY);
+            ctx.moveTo(centerX + size * 0.25, arrowY);
+            ctx.lineTo(centerX + size * 0.22, arrowY - arrowSize * 0.4);
+            ctx.moveTo(centerX + size * 0.25, arrowY);
+            ctx.lineTo(centerX + size * 0.22, arrowY + arrowSize * 0.4);
+            ctx.stroke();
+        }
+
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = url;
+            link.click();
+        }
+
+        // Draw icons on page load
+        window.onload = function() {
+            drawIcon(document.getElementById('canvas192'));
+            drawIcon(document.getElementById('canvas512'));
+        };
+    </script>
+</body>
+</html>

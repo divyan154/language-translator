@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Voice Translator">
+    <title>Voice Translator - Japanese ⇄ English</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎤 Voice Translator</h1>
+            <p class="subtitle">Push to speak, instant translation</p>
+        </header>
+
+        <!-- Language Direction Switcher -->
+        <div class="language-switcher">
+            <button id="langBtn" class="lang-button">
+                <span id="sourceLang">🇯🇵 Japanese</span>
+                <span class="arrow">→</span>
+                <span id="targetLang">🇬🇧 English</span>
+            </button>
+        </div>
+
+        <!-- Status Indicator -->
+        <div id="status" class="status">Ready to translate</div>
+
+        <!-- Push-to-Talk Button -->
+        <div class="mic-container">
+            <button id="micBtn" class="mic-button">
+                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+                <span class="mic-text">Hold to Speak</span>
+            </button>
+            <div class="recording-indicator"></div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results">
+            <!-- Original Text -->
+            <div class="result-card">
+                <h3>Original</h3>
+                <div id="originalText" class="text-content">Your speech will appear here...</div>
+            </div>
+
+            <!-- Translated Text -->
+            <div class="result-card">
+                <h3>Translation</h3>
+                <div id="translatedText" class="text-content">Translation will appear here...</div>
+                <button id="playBtn" class="play-button" disabled>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    Play Audio
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings/Info -->
+        <div class="info">
+            <p>💡 <strong>Tip:</strong> Hold the button and speak clearly</p>
+            <p id="apiStatus" class="api-status"></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
