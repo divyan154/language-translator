@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <h1>Translation API Testing</h1>
+
+    <h2>Test 1: MyMemory API (Current)</h2>
+    <button onclick="testMyMemory()">Test MyMemory API</button>
+    <div id="mymemory-result" class="result"></div>
+
+    <h2>Test 2: LibreTranslate.com API</h2>
+    <button onclick="testLibreTranslate()">Test LibreTranslate API</button>
+    <div id="libretranslate-result" class="result"></div>
+
+    <h2>Test 3: Google Translate (via Proxy)</h2>
+    <button onclick="testGoogleProxy()">Test Google Translate Proxy</button>
+    <div id="google-result" class="result"></div>
+
+    <script>
+        async function testMyMemory() {
+            const resultDiv = document.getElementById('mymemory-result');
+            resultDiv.textContent = 'Testing MyMemory API...';
+            resultDiv.className = 'result';
+
+            try {
+                const text = 'Hello';
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`;
+
+                console.log('MyMemory Request URL:', url);
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('MyMemory Response:', data);
+
+                if (data.responseData && data.responseData.translatedText) {
+                    resultDiv.textContent = `✓ SUCCESS!\n\nOriginal: ${text}\nTranslated: ${data.responseData.translatedText}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.textContent = `✗ FAILED\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.textContent = `✗ ERROR\n\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result error';
+                console.error('MyMemory Error:', error);
+            }
+        }
+
+        async function testLibreTranslate() {
+            const resultDiv = document.getElementById('libretranslate-result');
+            resultDiv.textContent = 'Testing LibreTranslate API...';
+            resultDiv.className = 'result';
+
+            try {
+                const text = 'Hello';
+                const url = 'https://libretranslate.com/translate';
+
+                console.log('LibreTranslate Request URL:', url);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        q: text,
+                        source: 'en',
+                        target: 'ja',
+                        format: 'text'
+                    })
+                });
+
+                const data = await response.json();
+
+                console.log('LibreTranslate Response:', data);
+
+                if (data.translatedText) {
+                    resultDiv.textContent = `✓ SUCCESS!\n\nOriginal: ${text}\nTranslated: ${data.translatedText}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.textContent = `✗ FAILED\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.textContent = `✗ ERROR\n\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result error';
+                console.error('LibreTranslate Error:', error);
+            }
+        }
+
+        async function testGoogleProxy() {
+            const resultDiv = document.getElementById('google-result');
+            resultDiv.textContent = 'Testing Google Translate via translate.googleapis.com...';
+            resultDiv.className = 'result';
+
+            try {
+                // Using free Google Translate API endpoint (limited, may not work)
+                const text = 'Hello';
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ja&dt=t&q=${encodeURIComponent(text)}`;
+
+                console.log('Google Translate Request URL:', url);
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('Google Translate Response:', data);
+
+                if (data && data[0] && data[0][0] && data[0][0][0]) {
+                    const translated = data[0][0][0];
+                    resultDiv.textContent = `✓ SUCCESS!\n\nOriginal: ${text}\nTranslated: ${translated}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.textContent = `✗ FAILED\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.textContent = `✗ ERROR\n\n${error.message}\n\n${error.stack}`;
+                resultDiv.className = 'result error';
+                console.error('Google Translate Error:', error);
+            }
+        }
+
+        // Auto-run MyMemory test on load
+        window.onload = () => {
+            console.log('Page loaded, running automatic tests...');
+            testMyMemory();
+        };
+    </script>
+</body>
+</html>

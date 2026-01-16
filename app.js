@@ -23,8 +23,8 @@ class VoiceTranslator {
         this.recognition = null;
         this.synthesis = window.speechSynthesis;
 
-        // Translation API
-        this.translationAPI = 'https://libretranslate.com/translate';
+        // Translation API - MyMemory (free, no API key required)
+        this.translationAPI = 'https://api.mymemory.translated.net/get';
 
         // Initialize
         this.init();
@@ -231,7 +231,13 @@ class VoiceTranslator {
     }
 
     async translateText(text) {
+        console.log('=== TRANSLATION DEBUG ===');
+        console.log('Input text:', text);
+        console.log('Text length:', text ? text.length : 0);
+        console.log('Direction:', this.currentDirection);
+
         if (!text || text.trim() === '') {
+            console.error('No text to translate');
             this.updateStatus('No text to translate', 'error');
             return;
         }
@@ -242,44 +248,55 @@ class VoiceTranslator {
         try {
             const [sourceLang, targetLang] = this.currentDirection.split('-');
 
-            const response = await fetch(this.translationAPI, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    q: text,
-                    source: sourceLang,
-                    target: targetLang,
-                    format: 'text'
-                })
-            });
+            // MyMemory API uses GET with langpair parameter
+            const url = `${this.translationAPI}?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
+
+            console.log('Translation URL:', url);
+            console.log('Source language:', sourceLang);
+            console.log('Target language:', targetLang);
+
+            const response = await fetch(url);
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
 
             if (!response.ok) {
-                throw new Error(`Translation API error: ${response.status}`);
+                throw new Error(`Translation API returned status ${response.status}`);
             }
 
             const data = await response.json();
+            console.log('Full API response:', JSON.stringify(data, null, 2));
+            console.log('Response status code:', data.responseStatus);
+            console.log('Response data:', data.responseData);
 
-            if (data.translatedText) {
-                this.lastTranslation = data.translatedText;
-                this.translatedText.textContent = data.translatedText;
-                this.updateStatus('Translation complete!', 'success');
+            // MyMemory API returns data in responseData.translatedText
+            if (data.responseData && data.responseData.translatedText) {
+                this.lastTranslation = data.responseData.translatedText;
+                this.translatedText.textContent = data.responseData.translatedText;
+                this.updateStatus('Translation complete! ✓', 'success');
                 this.playBtn.disabled = false;
+
+                console.log('✓ Translation successful:', data.responseData.translatedText);
 
                 // Auto-play the translation
                 setTimeout(() => this.speakTranslation(), 500);
+            } else if (data.responseStatus === 403) {
+                throw new Error('Translation quota exceeded. Please try again later.');
+            } else if (data.responseStatus !== 200) {
+                throw new Error(`API returned status: ${data.responseStatus}. ${data.responseDetails || ''}`);
             } else {
-                throw new Error('Invalid response from translation API');
+                throw new Error('Invalid response structure from translation API');
             }
         } catch (error) {
-            console.error('Translation error:', error);
-            this.updateStatus('Translation failed. Please try again.', 'error');
-            this.translatedText.textContent = 'Translation failed. Please try again.';
+            console.error('✗ Translation error:', error);
+            console.error('Error stack:', error.stack);
+            this.updateStatus('Translation failed: ' + error.message, 'error');
+            this.translatedText.textContent = 'Error: ' + error.message;
 
             // Fallback: Show error in API status
-            this.apiStatus.textContent = '⚠️ Translation service temporarily unavailable';
+            this.apiStatus.textContent = '⚠️ ' + error.message;
+            this.apiStatus.style.color = '#E74C3C';
         }
+        console.log('=== END TRANSLATION DEBUG ===');
     }
 
     speakTranslation() {
@@ -369,10 +386,17 @@ class VoiceTranslator {
 
     async testTranslationAPI() {
         try {
-            const response = await fetch('https://libretranslate.com/languages');
+            // Test MyMemory API with a simple translation
+            const response = await fetch(`${this.translationAPI}?q=test&langpair=en|ja`);
             if (response.ok) {
-                this.apiStatus.textContent = '✓ Translation service ready';
-                this.apiStatus.style.color = '#50C878';
+                const data = await response.json();
+                if (data.responseStatus === 200) {
+                    this.apiStatus.textContent = '✓ Translation service ready (MyMemory API)';
+                    this.apiStatus.style.color = '#50C878';
+                } else {
+                    this.apiStatus.textContent = '⚠️ Translation service may be slow';
+                    this.apiStatus.style.color = '#E67E22';
+                }
             } else {
                 this.apiStatus.textContent = '⚠️ Translation service may be slow';
                 this.apiStatus.style.color = '#E67E22';

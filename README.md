@@ -16,7 +16,7 @@ A Progressive Web App (PWA) that translates voice input between Japanese and Eng
 
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Speech Recognition**: Web Speech API (browser built-in)
-- **Translation**: LibreTranslate API (free translation service)
+- **Translation**: MyMemory API (free translation service, no API key required)
 - **Text-to-Speech**: Web Speech Synthesis API
 - **PWA**: Service Worker, Web App Manifest
 
@@ -152,9 +152,10 @@ firebase deploy
 
 ### Translation Not Working
 - Check internet connection (translation requires network)
-- LibreTranslate API may have rate limits
+- MyMemory API may have rate limits (1000 words/day for free tier)
 - Try again after a few seconds
 - Check browser console for errors
+- If quota exceeded, wait 24 hours or upgrade to premium API
 
 ### Speech Recognition Errors
 
@@ -179,19 +180,33 @@ firebase deploy
 
 ## API Information
 
-### LibreTranslate API
-- **Free tier**: Limited requests per day
-- **Public instance**: https://libretranslate.com/
-- **Rate limits**: May apply on public instance
+### MyMemory Translation API
+- **Free tier**: 1000 words per day (no API key required)
+- **Public instance**: https://api.mymemory.translated.net
+- **Rate limits**: 1000 words/day for anonymous usage
+- **Premium tier**: Available at https://mymemory.translated.net for higher limits
 
-If you experience rate limiting, you can:
-1. Deploy your own LibreTranslate instance
-2. Use a paid API key
-3. Switch to another translation API
+**Advantages:**
+- No API key or registration required
+- Simple REST API
+- Good translation quality
+- Support for 100+ language pairs
 
-To use your own LibreTranslate instance, edit `app.js`:
+**Limitations:**
+- 1000 words per day limit for free tier
+- May be slower during peak usage
+- Requires internet connection
+
+If you experience rate limiting or want to use a different service:
+1. Sign up for MyMemory Premium for higher limits
+2. Switch to Google Translate API (requires API key)
+3. Use DeepL API (requires API key, better quality)
+
+To use a different translation service, edit `app.js`:
 ```javascript
-this.translationAPI = 'YOUR_LIBRETRANSLATE_URL/translate';
+// Example: Switch to a different API
+this.translationAPI = 'YOUR_API_ENDPOINT';
+// Then modify the translateText() function accordingly
 ```
 
 ## File Structure
@@ -203,9 +218,10 @@ translator/
 ├── app.js                  # Main JavaScript application
 ├── manifest.json           # PWA manifest
 ├── service-worker.js       # Service worker for PWA
-├── generate-icons.html     # Icon generator utility
-├── icon-192.png           # App icon 192x192 (generate first)
-├── icon-512.png           # App icon 512x512 (generate first)
+├── generate-icons.html     # Icon generator utility (HTML/Canvas)
+├── generate_icons.py       # Icon generator utility (Python/Pillow)
+├── icon-192.png           # App icon 192x192 (auto-generated)
+├── icon-512.png           # App icon 512x512 (auto-generated)
 └── README.md              # This file
 ```
 
