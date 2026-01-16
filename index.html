@@ -10,14 +10,14 @@
     <title>Voice Translator - Japanese ⇄ English</title>
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json?v=2.0">
 
     <!-- Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
     <div class="container">
@@ -78,10 +78,35 @@
         <div class="info">
             <p>💡 <strong>Tip:</strong> Hold the button and speak clearly</p>
             <p id="apiStatus" class="api-status"></p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 10px;">App Version: 2.0 | API: MyMemory</p>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="app.js"></script>
+    <script src="app.js?v=2.0"></script>
+
+    <!-- Force cache clear for old versions -->
+    <script>
+        // Clear old service worker and caches
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+
+        // Clear old caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) {
+                    if (name.includes('v1')) {
+                        caches.delete(name);
+                        console.log('Deleted old cache:', name);
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>
