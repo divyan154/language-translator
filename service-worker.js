@@ -1,6 +1,6 @@
 // Service Worker for Voice Translator PWA
 
-const CACHE_NAME = 'voice-translator-v1';
+const CACHE_NAME = 'voice-translator-v2';
 const urlsToCache = [
   '/',
   '/index.html',

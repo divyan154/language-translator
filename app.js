@@ -1,7 +1,11 @@
 // Voice Translator App - Main JavaScript File
+// Version 2.0 - MyMemory API Integration
 
 class VoiceTranslator {
     constructor() {
+        // App Version
+        this.APP_VERSION = '2.0';
+
         // DOM Elements
         this.micBtn = document.getElementById('micBtn');
         this.langBtn = document.getElementById('langBtn');
@@ -40,9 +44,32 @@ class VoiceTranslator {
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg))
+                .then(reg => {
+                    console.log('Service Worker registered', reg);
+
+                    // Check for updates
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New service worker available, reload to update
+                                console.log('New version available! Reloading...');
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                window.location.reload();
+                            }
+                        });
+                    });
+                })
                 .catch(err => console.log('Service Worker registration failed', err));
+
+            // Reload page when new service worker takes control
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('Service Worker updated, reloading page...');
+                window.location.reload();
+            });
         }
+
+        console.log(`Voice Translator v${this.APP_VERSION} initialized`);
     }
 
     checkBrowserSupport() {
